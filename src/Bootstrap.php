@@ -32,9 +32,14 @@ class Bootstrap {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		foreach ( $check_options as $name => $version ) {
-			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $name );
-			if ( is_plugin_active( $name ) && version_compare( $plugin_data['Version'], $version[0], $version[1] ) ) {
-				return true;
+			if ( ! file_exists( WP_PLUGIN_DIR . '/' . $name ) ) {
+				continue;
+			}
+			if ( \is_plugin_active( $name ) ) {
+				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $name );
+				if ( version_compare( $plugin_data['Version'], $version[0], $version[1] ) ) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -49,8 +54,14 @@ class Bootstrap {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		foreach ( $check_options as $name => $version ) {
+			if ( ! file_exists( WP_PLUGIN_DIR . '/' . $name ) ) {
+				return false;
+			}
+			if ( ! \is_plugin_active( $name ) ) {
+				return false;
+			}
 			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $name );
-			if ( ! is_plugin_active( $name ) || ! version_compare( $plugin_data['Version'], $version[0], $version[1] ) ) {
+			if ( ! version_compare( $plugin_data['Version'], $version[0], $version[1] ) ) {
 				return false;
 			}
 		}
